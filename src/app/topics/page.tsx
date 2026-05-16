@@ -34,6 +34,11 @@ export default function TopicsPage() {
     level: "EASY" as "EASY" | "MEDIUM" | "HARD",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingSubtopic, setDeletingSubtopic] = useState<{
+    topicId: string;
+    subtopicId: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     async function fetchTopics() {
@@ -92,10 +97,12 @@ export default function TopicsPage() {
     }
   };
 
-  const deleteSubtopic = async (topicId: string, subtopicId: string) => {
-    if (!confirm("Are you sure you want to delete this subtopic?")) return;
+  const confirmDelete = async () => {
+    if (!deletingSubtopic) return;
+    const { topicId, subtopicId } = deletingSubtopic;
 
     try {
+      setIsSubmitting(true);
       const res = await fetch(`/api/subtopics/${subtopicId}`, {
         method: "DELETE",
       });
@@ -120,12 +127,15 @@ export default function TopicsPage() {
             return t;
           }),
         );
+        setDeletingSubtopic(null);
       } else {
-        alert("Failed to delete subtopic");
+        console.error("Failed to delete subtopic");
       }
     } catch (err) {
       console.error(err);
-      alert("Something went wrong");
+      console.error("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -168,11 +178,11 @@ export default function TopicsPage() {
         });
       } else {
         const errData = await res.json();
-        alert(errData.message || "Failed to add subtopic");
+        console.error(errData.message || "Failed to add subtopic");
       }
     } catch (err) {
       console.error(err);
-      alert("Something went wrong");
+      console.error("Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
@@ -416,7 +426,11 @@ export default function TopicsPage() {
                                         <span>{st.name}</span>
                                         <button
                                           onClick={() =>
-                                            deleteSubtopic(topic.id, st.id)
+                                            setDeletingSubtopic({
+                                              topicId: topic.id,
+                                              subtopicId: st.id,
+                                              name: st.name,
+                                            })
                                           }
                                           className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/10 text-slate-500 hover:text-red-500 rounded-lg transition-all"
                                           title="Delete Subtopic">
@@ -616,6 +630,57 @@ export default function TopicsPage() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deletingSubtopic && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDeletingSubtopic(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="glass-card w-full max-w-md p-8 relative z-10 border-red-500/30">
+              <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-6 mx-auto">
+                <Trash2 size={32} className="text-red-500" />
+              </div>
+              <h2 className="text-2xl font-bold mb-2 text-center">
+                Delete Subtopic?
+              </h2>
+              <p className="text-slate-400 text-center mb-8">
+                Are you sure you want to delete "
+                <span className="text-white font-semibold">
+                  {deletingSubtopic.name}
+                </span>
+                "? This action cannot be undone.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setDeletingSubtopic(null)}
+                  className="flex-1 px-6 py-3 rounded-xl bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-all">
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={isSubmitting}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50">
+                  {isSubmitting ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    "Delete"
+                  )}
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
