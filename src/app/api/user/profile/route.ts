@@ -45,8 +45,6 @@ export async function GET() {
               create: t.subtopics.map(st => ({
                 ...st,
                 level: st.level as any,
-                youtubeLink: 'https://youtube.com',
-                articleLink: 'https://geeksforgeeks.org'
               }))
             }
           }
@@ -89,13 +87,16 @@ export async function GET() {
     };
 
     const topicsWithProgress = topics.map(topic => {
-      const subtopicsCount = topic.subtopics.length;
-      const completedCount = topic.subtopics.filter(st =>
-        user.progress.find(p => p.subtopicId === st.id && p.status)
-      ).length;
+      const subtopics = topic.subtopics.map(st => ({
+        ...st,
+        completed: user.progress.some(p => p.subtopicId === st.id && p.status)
+      }));
+      const subtopicsCount = subtopics.length;
+      const completedCount = subtopics.filter(st => st.completed).length;
 
       return {
         ...topic,
+        subtopics,
         subtopicsCount,
         completedCount
       };

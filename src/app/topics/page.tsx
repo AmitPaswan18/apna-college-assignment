@@ -14,6 +14,7 @@ import {
   Video,
   Filter,
   BarChart,
+  Trash2,
 } from "lucide-react";
 import { Topic, Subtopic } from "@/types";
 
@@ -88,6 +89,43 @@ export default function TopicsPage() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const deleteSubtopic = async (topicId: string, subtopicId: string) => {
+    if (!confirm("Are you sure you want to delete this subtopic?")) return;
+
+    try {
+      const res = await fetch(`/api/subtopics/${subtopicId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setTopics((prev) =>
+          prev.map((t) => {
+            if (t.id === topicId) {
+              const updatedSubtopics = t.subtopics?.filter(
+                (st) => st.id !== subtopicId,
+              );
+              const completedCount =
+                updatedSubtopics?.filter((st) => st.completed).length || 0;
+              const subtopicsCount = updatedSubtopics?.length || 0;
+              return {
+                ...t,
+                subtopics: updatedSubtopics,
+                completedCount,
+                subtopicsCount,
+              };
+            }
+            return t;
+          }),
+        );
+      } else {
+        alert("Failed to delete subtopic");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
     }
   };
 
@@ -339,17 +377,26 @@ export default function TopicsPage() {
                                 return matchesSearch && matchesLevel;
                               })
                               .map((st) => {
+                                const leetcodeUrl =
+                                  st.leetcodeLink &&
+                                  st.leetcodeLink !== "https://leetcode.com"
+                                    ? st.leetcodeLink
+                                    : `https://leetcode.com/search/?q=${encodeURIComponent(st.name)}`;
                                 const youtubeUrl =
-                                  st.youtubeLink ||
-                                  `https://www.youtube.com/results?search_query=${encodeURIComponent(st.name + " " + topic.name)}`;
+                                  st.youtubeLink &&
+                                  st.youtubeLink !== "https://youtube.com"
+                                    ? st.youtubeLink
+                                    : `https://www.youtube.com/results?search_query=${encodeURIComponent(st.name)}`;
                                 const gfgUrl =
-                                  st.articleLink ||
-                                  `https://www.geeksforgeeks.org/search/?gq=${encodeURIComponent(st.name)}`;
+                                  st.articleLink &&
+                                  st.articleLink !== "https://geeksforgeeks.org"
+                                    ? st.articleLink
+                                    : `https://www.geeksforgeeks.org/search/?gq=${encodeURIComponent(st.name)}`;
 
                                 return (
                                   <tr
                                     key={st.id}
-                                    className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                                    className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
                                     <td className="py-4 px-4">
                                       <input
                                         type="checkbox"
@@ -365,11 +412,21 @@ export default function TopicsPage() {
                                       />
                                     </td>
                                     <td className="py-4 px-4 font-medium text-slate-200">
-                                      {st.name}
+                                      <div className="flex items-center justify-between">
+                                        <span>{st.name}</span>
+                                        <button
+                                          onClick={() =>
+                                            deleteSubtopic(topic.id, st.id)
+                                          }
+                                          className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/10 text-slate-500 hover:text-red-500 rounded-lg transition-all"
+                                          title="Delete Subtopic">
+                                          <Trash2 size={14} />
+                                        </button>
+                                      </div>
                                     </td>
                                     <td className="py-4 px-4 text-center">
                                       <a
-                                        href={st.leetcodeLink || "#"}
+                                        href={leetcodeUrl}
                                         target="_blank"
                                         className="text-primary hover:underline text-sm font-semibold flex items-center justify-center gap-1">
                                         Practise <ExternalLink size={14} />
@@ -433,7 +490,7 @@ export default function TopicsPage() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="glass-card w-full max-w-lg p-8 relative z-10 border-primary/30">
+              className="glass-card mt-10 w-full max-w-lg p-8 relative z-10 border-primary/30 max-h-[85vh] overflow-y-auto">
               <button
                 onClick={() => setIsAddingSubtopic(null)}
                 className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
