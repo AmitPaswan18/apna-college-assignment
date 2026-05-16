@@ -166,7 +166,7 @@ export default function Navbar() {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-3 w-72 glass-card p-4 shadow-2xl z-[1000] border-white/10">
+                      className="absolute bg-background/90 right-0 mt-3 w-72 glass-card p-4 shadow-2xl z-[1000] border-white/10">
                       <div className="mb-4 pb-4 border-b border-white/5">
                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">
                           Current User
