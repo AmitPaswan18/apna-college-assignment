@@ -10,8 +10,12 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      const forwardTo = `${origin}${next}`
+      return NextResponse.redirect(forwardTo)
     }
+    console.error('Auth callback exchange error:', error)
+  } else {
+    console.warn('Auth callback missing code parameter')
   }
 
   // return the user to an error page with instructions
