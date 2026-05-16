@@ -1,0 +1,57 @@
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions"), vector]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  name      String?
+  progress  Progress[]
+  createdAt DateTime   @default(now())
+}
+
+model Topic {
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  subtopics   Subtopic[]
+}
+
+model Subtopic {
+  id           String     @id @default(uuid())
+  topicId      String
+  topic        Topic      @relation(fields: [topicId], references: [id])
+  name         String
+  leetcodeLink String?
+  youtubeLink  String?
+  articleLink  String?
+  level        Difficulty @default(EASY)
+  progress     Progress[]
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Progress {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  subtopicId String
+  subtopic   Subtopic @relation(fields: [subtopicId], references: [id])
+  status     Boolean  @default(false)
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, subtopicId])
+}
