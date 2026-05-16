@@ -28,7 +28,6 @@ A premium, full-stack DSA tracking application built with Next.js, Prisma, and S
    DIRECT_URL="your-supabase-direct-connection-string"
    NEXT_PUBLIC_SUPABASE_URL="your-supabase-project-url"
    NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
-   JWT_SECRET="your-secure-secret"
    ```
 4. **Database Migration**:
    ```bash
@@ -38,15 +37,3 @@ A premium, full-stack DSA tracking application built with Next.js, Prisma, and S
    ```bash
    npm run dev
    ```
-
-## AWS Deployment
-### Method 1: AWS Amplify (Recommended)
-1. Push this code to a GitHub repository.
-2. Connect the repository to **AWS Amplify Console**.
-3. Add your environment variables in the Amplify settings.
-4. Deploy.
-
-### Method 2: AWS App Runner
-1. Create a Dockerfile for the Next.js app.
-2. Push the image to **Amazon ECR**.
-3. Deploy using **AWS App Runner**.
