@@ -355,7 +355,7 @@ export default function TopicsPage() {
                         <table className="w-full text-left border-collapse min-w-[800px]">
                           <thead>
                             <tr className="border-b border-white/5 text-slate-500 uppercase text-[10px] font-black tracking-widest">
-                              <th className="pb-4 pt-2 px-4">Status</th>
+                              <th className="pb-4 pt-2 px-4 w-12"></th>
                               <th className="pb-4 pt-2 px-4">Problem Name</th>
                               <th className="pb-4 pt-2 px-4 text-center">
                                 Practice
@@ -368,6 +368,9 @@ export default function TopicsPage() {
                               </th>
                               <th className="pb-4 pt-2 px-4 text-center">
                                 Difficulty
+                              </th>
+                              <th className="pb-4 pt-2 px-4 text-center">
+                                Status
                               </th>
                             </tr>
                           </thead>
@@ -472,6 +475,16 @@ export default function TopicsPage() {
                                               : "text-hard bg-hard/10 border border-hard/20"
                                         }`}>
                                         {st.level}
+                                      </span>
+                                    </td>
+                                    <td className="py-4 px-4 text-center font-bold text-sm">
+                                      <span
+                                        className={
+                                          st.completed
+                                            ? "text-easy"
+                                            : "text-slate-400"
+                                        }>
+                                        {st.completed ? "Done" : "Pending"}
                                       </span>
                                     </td>
                                   </tr>
